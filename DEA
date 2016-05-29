@@ -78,7 +78,7 @@ public class DEA {
     }
 
     /**
-     * 求最优适应值，接受一个HasMap，升序排序其key，输出最优key值(函数适应值)
+     * 求最优适应值，接受一个TreeMap，升序排序其key，输出最优key值(函数适应值)
      */
     private double BestFitness(TreeMap fitness) {
         TreeMap<Double, Integer> map = fitness;
@@ -168,7 +168,7 @@ public class DEA {
     /**
      * 选择操作
      */
-    public void choice() {
+    public void select() {
         x_ = new double[NP][D];
         //通过适应值来进行选择操作
         for (int i = 0; i < x_.length; i++) {
@@ -216,7 +216,7 @@ public class DEA {
             System.out.println(g);
             variation();
             hybird();
-            choice();
+            select();
             transition();
         }
         System.out.println(BestFitValue);
