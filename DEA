@@ -57,9 +57,10 @@ public class DEA {
 
     /**
      * 目标函数，获取一个x，返回函数值
-     *                                                                         此处的函数不应该是一个具体的函数，而应该是一个接口，用于不同的函数
+     *                          此处的函数不应该是一个具体的函数，而应该是一个接口，用于不同的函数
      */
     private double function(double x) {
+        //some benchmark functions relate to i(varible in function fitness()),
         return x*x;
     }
     
