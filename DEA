@@ -123,27 +123,31 @@ public class DEA {
      * 变异操作 f为缩放因子
      */
     public void variation() {
-        int i1;
-        int i2;
-        int i3;
         v = new double[NP][D];
         //嵌套for循环
         for (int i = 0; i < v.length; i++) {
-            i1 = (int) (Math.random() * v.length);
-            while (i1 == i) {
-                i1 = (int) (Math.random() * v.length);
+            /*用队列的方式产生三个不同的随机数
+            */
+            int num = 0;
+            int head = 0;
+            int[] queen = new int[NP];
+            int tail = temp.length;
+            // the number of i
+            int [] INum = new int[3];
+            //随机产生不同的行数，将所有的行数编号依次放入数组（队列）
+             for(int j = 0;j<NP;j++){
+                queen[j] = j;
             }
-            i2 = (int) (Math.random() * v.length);
-            while (i2 == i1 || i2 == i) {
-                i2 = (int) (Math.random() * v.length);
+            //产生三个不同的随机数
+            while(num <3){
+                INum[num] = (int)((Math.random()*(tail-head))+head);
+                queen[head] = queen[num];
+                head++;
+                num++;
             }
-            i3 = (int) (Math.random() * v.length);
-            while (i3 == i2 || i3 == i1 || i3 == i) {
-                i3 = (int) (Math.random() * v.length);
-            }
-
+            //变异操作
             for (int j = 0; j < v[i].length; j++) {
-                v[i][j] = x[i1][j] + F * (x[i2][j] - x[i3][j]);
+                v[i][j] = x[INum[0]][j] + F * (x[INum[1]][j] - x[INum[2]][j]);
             }
         }
     }
@@ -221,8 +225,8 @@ public class DEA {
             transition();
         }
         System.out.println(BestFitValue);
-        for (int i = 0; i < BestIndividual.length; i++) {
-            System.out.println(BestIndividual[i]);
+         for(double i:BestIndividual){
+            System.out.println(i);
         }
     }
 }
