@@ -1,8 +1,11 @@
- package dea;
-public class DETest {
-public static void main(String[] args) {
-            DEA de = new DEA(60,30,500,0.5,0.5);
-            de.DEAStart();
-	}
+package DEAForgithub;
 
+import DEAForgithub.function.F1;
+
+public class DEATest {
+	public static void main(String[] args){
+		F1 f1 = new F1(60,-100,100);
+		DE.start(10000, f1);
+		DE.ResultPrint();
+	}
 }
