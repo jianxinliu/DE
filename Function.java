@@ -5,8 +5,6 @@ import DEAForgithub.Common;
 /**
  * The base class for benchmark functions. All benchmark functions are for
  * minimization and have the same global optimum: <code>0</code>.
- * 
- * @author jianxin liu
  */
 public class Function {
 
