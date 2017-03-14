@@ -1,232 +1,233 @@
-package dea;
+package DEAForgithub;
 
-import java.util.*;
+import java.util.TreeMap;
 
-
-//interface function{
-//    static int Dimension = 30;
-//    static int max=100;
-//    static int min = -100;
-//    
-//    public abstract void function1();
-//    public abstract void FitForFunction();
-//    
-//}
+import DEAForgithub.function.Function;
 
 /**
- * 2016/05/09 重写
+ * 2017.1.6 rewrite
+ * 
+ * @author jianxin liu
+ *
  */
-public class DEA {
+public class DE extends Function {
 
-    //定义一个二维数组，装初始种群
-    private static double[][] x;
-    //变异操作后存放种群
-    private static double[][] v;
-    //交叉操作后存放种群
-    private static double[][] u;
-    //选择操作后，的当代最优种群
-    private static double[][] x_;
-    //问题维度                                                                    维度不应该是算法的类成员变量，而也应该是函数的类属性
-    private static int D;
-    //缩放因子
-    private static double F;
-    //交叉概率
-    private static double CR;
-    //种群规模（个体个数）
-    private static int NP;
-    //需要进化的代数
-    private static int G;
-    //当前迭代次数
-    private static int g;
-    //当前最优个体
-    private static double[] BestIndividual;
-    //当前最优个体的函数适应值
-    private static double BestFitValue;
+	/** benchmark function */
+	private static Function func;
 
-    /**
-     * 构造函数
-     */
-    //                                                                             D的初始化需要交给抽象类function
-    public DEA(int np, int d, int gen,double f,double cr) {
-        this.F = f;
-        this.CR = cr;
-        this.NP = np;
-        this.D = d;
-        this.G = gen;
-    }
+	/** generation number to process */
+	private static int G;
 
-    /**
-     * 目标函数，获取一个x，返回函数值
-     *                          此处的函数不应该是一个具体的函数，而应该是一个接口，用于不同的函数
-     */
-    private double function(double x) {
-        //some benchmark functions relate to i(varible in function fitness()),
-        return x*x;
-    }
-    
+	/** current generation */
+	private static int g;
 
-    /**
-     * 求适应值，接受一个一维数组arr， 函数将数组里的每一个元素代入function 
-     * 返回所有元素的函数值的和(个体的适应值)
-     *                                                                          适应值函数应该是function的方法，也应该是一个接口
-     */
-    private double fitness(double[] arr) {
-        double sum = 0;
-        for (int i = 0; i < arr.length; i++) {
-            sum += function(arr[i]);
-        }
-        return sum;
-    }
+	/** common things */
+	private static Common common = new Common();
 
-    /**
-     * 求最优适应值，接受一个TreeMap，升序排序其key，输出最优key值(函数适应值)
-     */
-    private double BestFitness(TreeMap fitness) {
-        TreeMap<Double, Integer> map = fitness;
-        return map.firstKey();
-    }
+	/**
+	 * if current best individual is better, this variable will be update to
+	 * current best individual
+	 */
+	private static double[] bestIndividual;
 
-    /**
-     * 由最优值(key)-->其对应的value(个体所在的位置)-->找到个体
-     */
-    private double[] findIndividualWithFit(double a, TreeMap s, double[][] arr) {
-        double[] best = new double[D];
-        TreeMap<Double, Integer> Map = s;
-        best = arr[Map.get(a)];
-        return best;
-    }
+	/** this fit value will been compare every generation,hold the best one */
+	private static double bestFitValue;
 
-    /**
-     * max min为上下界约束 初始化种群
-     *                                                                           min,max应该是函数的属性
-     */
-    public void original(int max, int min) {
-        TreeMap<Double, Integer> map = new TreeMap<>();
-        //当前种群中所有个体的函数适应值
-        double[] fitValue = new double[D];
-       //由最优适应值可知当前种群最优个体(初始化阶段可直接将当前最优个体交给BestIndividual)
-        x = new double[NP][D];
-        for (int i = 0; i < x.length; i++) {
-            for (int j = 0; j < x[i].length; j++) {
-                x[i][j] = min + (Math.random() * (max - min));
-            }
-           //生成个体时，每生成一个就求其适应值，并作为map中的key，对应的value为个体所在的位置i
-            map.put(fitness(x[i]), i);
-        }
-        BestFitValue = BestFitness(map);
-        //初始化完成-->HashMap添加完成，对其key排序，选出最优的，得到其对应的个体
-        BestIndividual = findIndividualWithFit(BestFitness(map), map, x);
+	private DE(int gen, Function function) {
+		G = gen;
+		func = function;
+	}
 
-    }
+	/**
+	 * Compute the value of the benchmark function as fit value.
+	 * 
+	 * @param arr
+	 *            the candidate solution vector
+	 * @return fit value
+	 */
+	private static double fitness(double[] arr) {
+		return func.compute(arr);
+	}
 
-    /**
-     * 变异操作 f为缩放因子
-     */
-    public void variation() {
-        v = new double[NP][D];
-        //嵌套for循环
-        for (int i = 0; i < v.length; i++) {
-            /*用队列的方式产生三个不同的随机数
-            */
-            int num = 0;
-            int head = 0;
-            int[] queen = new int[NP];
-            int tail = temp.length;
-            // the number of i
-            int [] INum = new int[3];
-            //随机产生不同的行数，将所有的行数编号依次放入数组（队列）
-             for(int j = 0;j<NP;j++){
-                queen[j] = j;
-            }
-            //产生三个不同的随机数
-            while(num <3){
-                INum[num] = (int)((Math.random()*(tail-head))+head);
-                queen[head] = queen[num];
-                head++;
-                num++;
-            }
-            //变异操作
-            for (int j = 0; j < v[i].length; j++) {
-                v[i][j] = x[INum[0]][j] + F * (x[INum[1]][j] - x[INum[2]][j]);
-            }
-        }
-    }
+	/**
+	 * util method. <code>TreeMap</code> sort the key by ascending order
+	 * default,so the first key is the minimum,or say best
+	 * 
+	 * @param fitness
+	 */
+	private static double BestFitness(TreeMap<Double, Integer> fitness) {
+		return fitness.firstKey();
+	}
 
-    /**
-     * 交叉操作 cr为交叉概率
-     */
-    public void hybird() {
-        u = new double[NP][D];
-        for (int i = 0; i < u.length; i++) {
-            //此处的随机数Ri在每行也应该是相等的
-            int Ri = (int) (1 + (Math.random() * (D - 1)));
-            for (int j = 0; j < u[i].length; j++) {
-                if (Math.random() < CR || j == Ri) {
-                    u[i][j] = v[i][j];
-                } else {
-                    u[i][j] = x[i][j];
-                }
-            }
-        }
-    }
+	/**
+	 * util method. find individual with best fit
+	 * 
+	 * @param bestFit
+	 * @param s
+	 *            <Double,Integer> map key is fit value,value is the individual
+	 *            position in the group
+	 * @param arr
+	 *            group
+	 * @return
+	 */
+	private static double[] find_individual_with_fit(double bestFit, TreeMap<Double, Integer> s, double[][] arr) {
+		return arr[s.get(bestFit)];
+	}
 
-    /**
-     * 选择操作
-     */
-    public void select() {
-        x_ = new double[NP][D];
-        //通过适应值来进行选择操作
-        for (int i = 0; i < x_.length; i++) {
-            if (fitness(u[i]) <= fitness(x[i])) {
-                x_[i] = u[i];
-            } else {
-                x_[i] = x[i];
-            }
-        }
-    }
+	/**
+	 * pass in a random two-dimension array.get best fit value as the initial
+	 * value get best individual
+	 * 
+	 * @param original
+	 * 
+	 */
+	private static void original(double[][] original) {
+		TreeMap<Double, Integer> map = new TreeMap<Double, Integer>();
+		for (int i = 0; i < original.length; i++) {
+			map.put(fitness(original[i]), i);
+		}
+		bestFitValue = BestFitness(map);
+		bestIndividual = find_individual_with_fit(bestFitValue, map, original);
+	}
 
-    /**
-     * 交接(过渡)操作，将上一代的x_移交给下一代的x, 并得出x_的最优个体,并进行比较，更替BestFitValue
-     */
-    public void transition() {
-        double currentBestFit;
-        double[] currentBestIndividual = new double[D];
-        TreeMap<Double, Integer> mapx = new TreeMap<>();
-        for (int i = 0; i < x.length; i++) {
-            for (int j = 0; j < x[i].length; j++) {
-                x[i][j] = x_[i][j];
-            }
-            //用Varition的方法求最优值及最优个体
-            mapx.put(fitness(x[i]), i);
-        }
-        //一代进化完成后的最优个体的函数适应值
-        currentBestFit = BestFitness(mapx);
-        // 一代进化完成后的最优个体
-        currentBestIndividual = findIndividualWithFit(BestFitness(mapx), mapx, x_);
-        if (currentBestFit < BestFitValue) {
-            BestFitValue = currentBestFit;
-            BestIndividual = currentBestIndividual;
-        }
-       System.out.print("currentBestFit:" + currentBestFit + " ");
-       System.out.println("BestFitValue:"+BestFitValue);
+	/**
+	 * step 1 variation operation
+	 */
+	private static double[][] variation(double[][] x) {
+		double[][] v = new double[common.getNP()][func.getDimension()];
+		for (int i = 0; i < v.length; i++) {
+			int[] INum = Random.create(3, 1, common.getNP() + 1);
+			for (int j = 0; j < v[i].length; j++) {
+				v[i][j] = x[INum[0]][j] + common.getZOOM() * (x[INum[1]][j] - x[INum[2]][j]);
+			}
+		}
+		return v;
+	}
 
-    }
+	/**
+	 * step 2 hybird operation
+	 */
+	private static double[][] hybird(double[][] v, double[][] x) {
+		double[][] u = new double[common.getNP()][func.getDimension()];
+		for (int i = 0; i < u.length; i++) {
+			int Ri = (int) (1 + (Math.random() * (func.getDimension() - 1)));
+			for (int j = 0; j < u[i].length; j++) {
+				u[i][j] = Math.random() < common.getCROSSOVER() || j == Ri ? v[i][j] : x[i][j];
+			}
+		}
+		return u;
+	}
 
-    /**
-     * Algorithm start 
-     */
-    public void DEAStart() {
-        original(100, -100);
-        for (g = 1; g <= G; g++) {
-            System.out.println(g);
-            variation();
-            hybird();
-            select();
-            transition();
-        }
-        System.out.println(BestFitValue);
-         for(double i:BestIndividual){
-            System.out.println(i);
-        }
-    }
+	/**
+	 * step 3 select operation
+	 */
+	private static double[][] choice(double[][] u, double[][] x) {
+		double[][] x_ = new double[common.getNP()][func.getDimension()];
+		for (int i = 0; i < x_.length; i++) {
+			x_[i] = fitness(u[i]) <= fitness(x[i]) ? u[i] : x[i];
+		}
+		return x_;
+	}
+
+	/**
+	 * transition between old generation and new one,obtain the best individual.
+	 * compare with BestFitValue,better one will be assign to BestIndividual
+	 */
+	private static double[][] transition(double[][] x, double[][] x_) {
+		double currentBestFit;
+		double[] currentBestIndividual = new double[func.getDimension()];
+		TreeMap<Double, Integer> mapx = new TreeMap<Double, Integer>();
+		for (int i = 0; i < x.length; i++) {
+			for (int j = 0; j < x[i].length; j++) {
+				x[i][j] = x_[i][j];
+			}
+			mapx.put(fitness(x[i]), i);
+		}
+		currentBestFit = BestFitness(mapx);
+		currentBestIndividual = find_individual_with_fit(currentBestFit, mapx, x_);
+		if (currentBestFit < bestFitValue) {
+			bestFitValue = currentBestFit;
+			bestIndividual = currentBestIndividual;
+		}
+		return x;
+	}
+
+	/**
+	 * create original group by random number
+	 * 
+	 * @param i
+	 *            the first dimension index
+	 * @param j
+	 *            the second dimension index
+	 * @param min
+	 * @param max
+	 * @return the array
+	 */
+	private static double[][] createOriginal(int dem, double min, double max) {
+		double[][] result = new double[common.getNP()][dem];
+		for (int k = 0; k < result.length; k++) {
+			for (int k2 = 0; k2 < result[k].length; k2++) {
+				result[k][k2] = min + Math.random() * (max - min);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * print the result
+	 */
+	public static void ResultPrint() {
+		System.out.print("BestFitValue:" + bestFitValue + " ");
+		for (int i = 0; i < bestIndividual.length; i++) {
+			System.out.print(i + 1 + ": " + bestIndividual[i] + "    ");
+		}
+	}
+
+	/**
+	 * @return get Result as an array
+	 */
+	public static double[] getResult() {
+		double[] temp = new double[bestIndividual.length];
+		for (int i = 0; i < temp.length; i++) {
+			temp[i] = bestIndividual[i];
+		}
+		return temp;
+	}
+
+	/**
+	 * pass in the array and it's properties to process
+	 * 
+	 * @param sources
+	 * @param gen
+	 * @param f
+	 * @param cr
+	 * @param function
+	 */
+	public static void start(int gen, Function function) {
+		double[][] x = createOriginal(function.getDimension(), function.getMin(), function.getMax());
+		start(x, gen, function);
+	}
+
+	/**
+	 * some preparatory work for start
+	 * 
+	 * @param sources
+	 *            sources group to process
+	 * @param gen
+	 *            how many generations will be process
+	 * @param function
+	 *            one benchmark function
+	 */
+	private static void start(double[][] sources, int gen, Function function) {
+		new DE(gen, function);
+		double[][] v, u, x_, x = sources;
+		original(x);
+		for (g = 0; g < G; g++) {
+			System.out.println((g + 1) + ":  ");
+			v = variation(x);
+			u = hybird(v, x);
+			x_ = choice(u, x);
+			x = transition(x, x_);
+		}
+	}
 }
